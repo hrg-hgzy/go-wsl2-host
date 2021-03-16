@@ -138,6 +138,7 @@ func Run(elog debug.Log) error {
 			elog.Error(1, fmt.Sprintf("failed to write hosts file: %v", err))
 			return fmt.Errorf("failed to write hosts file: %w", err)
 		}
+		portForwardapi.openFirewallandPortForward()
 	}
 
 	return nil
