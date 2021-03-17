@@ -7,22 +7,14 @@ import (
 	"strings"
 )
 
-// PowerShell struct
-type PowerShell struct {
-	powerShell string
+type posh struct {
+	Name string
 }
 
-// New create new session
-func New() *PowerShell {
+func execute(args ...string) (stdOut string, stdErr string, err error) {
 	ps, _ := exec.LookPath("powershell.exe")
-	return &PowerShell{
-		powerShell: ps,
-	}
-}
-
-func (p *PowerShell) execute(args ...string) (stdOut string, stdErr string, err error) {
 	args = append([]string{"-NoProfile", "-NonInteractive"}, args...)
-	cmd := exec.Command(p.powerShell, args...)
+	cmd := exec.Command(ps, args...)
 
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
@@ -90,8 +82,8 @@ for( $i = 0; $i -lt $ports.length; $i++ ){
 `
 )
 
-func openFirewallandPortForward() {
-	posh := New()
+func OpenFirewallandPortForward() error {
+	//posh := New()
 
 	// Scenario 1
 	// stdOut, stdErr, err := posh.execute(elevateProcessCmds)
@@ -109,7 +101,7 @@ func openFirewallandPortForward() {
 	//fmt.Printf("\nEnableHyperV:\nStdOut : '%s'\nStdErr: '%s'\nErr: %s", strings.TrimSpace(stdOut), stdErr, err)
 
 	firewallVScript := fmt.Sprintf("%s\n", firewallcmd)
-	stdOut, stdErr, err := posh.execute(firewallVScript)
+	stdOut, stdErr, err := execute(firewallVScript)
 	fmt.Printf("firewallVScript:\nStdOut : '%s'\nStdErr: '%s'\nErr: %s", strings.TrimSpace(stdOut), stdErr, err)
 
 	// ========= Above suppose to open a permission dialog, on click of "yes" should
