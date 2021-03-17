@@ -12,7 +12,7 @@ import (
 
 	"github.com/shayne/go-wsl2-host/pkg/hostsapi"
 
-	"github.com/hrg-hgzy/go-wsl2-host/pkg/portForwardapi"
+	"github.com/shayne/go-wsl2-host/pkg/portForwardapi"
 	"github.com/shayne/go-wsl2-host/pkg/wslapi"
 )
 
