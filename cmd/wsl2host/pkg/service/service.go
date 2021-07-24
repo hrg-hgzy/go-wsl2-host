@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -14,6 +15,8 @@ import (
 
 	"github.com/shayne/go-wsl2-host/pkg/portForwardapi"
 	"github.com/shayne/go-wsl2-host/pkg/wslapi"
+
+	"github.com/shayne/go-wsl2-host/pkg/wslcli"
 )
 
 /*ugly powershell code*/
@@ -273,6 +276,22 @@ func Run(elog debug.Log) error {
 		}
 	}
 
+	hostIP, err := wslcli.GetHostIP()
+
+	if err == nil {
+		hostname, err := os.Hostname()
+		hostAlias := distroNameToHostname(hostname)
+		err = hapi.AddEntry(&hostsapi.HostEntry{
+			IP:       hostIP,
+			Hostname: hostAlias,
+			Comment:  wsl2hosts.DistroComment(hostname),
+		})
+
+		if err == nil {
+			updated = true
+		}
+	}
+
 	if updated {
 		err = hapi.Write()
 		if err != nil {
@@ -280,6 +299,10 @@ func Run(elog debug.Log) error {
 			return fmt.Errorf("failed to write hosts file: %w", err)
 		}
 		portForwardapi.OpenFirewallandPortForward()
+
+		// restart the IP Helper service (iphlpsvc) for port forwarding
+		exec.Command("C:\\Windows\\System32\\cmd.exe", "/C net stop  iphlpsvc").Run()
+		exec.Command("C:\\Windows\\System32\\cmd.exe", "/C net start iphlpsvc").Run()
 	}
 
 	return nil
